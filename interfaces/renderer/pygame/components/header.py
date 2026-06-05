@@ -14,10 +14,14 @@ Identische Dekorationssprache:
 """
 
 import pygame
+import datetime
+import time as _time
 from typing import Optional, TYPE_CHECKING
 from core.utils.global_constants import (
     COLORS, FONT_FAMILY, FONT_SYMBOL, TEXT_LIGHT, TEXT_HIGHLIGHT,
 )
+
+_WEEKDAYS_DE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
 
 if TYPE_CHECKING:
     from core.utils.settings import Settings
@@ -36,6 +40,14 @@ class AppHeader:
         "museum":  ("MUSEUM",   "Ausstellung  ·  Exponate  ·  Design-Referenzen"),
         "lab":     ("LABOR",    "Werkstatt  ·  Experimente  ·  Aktive Entwicklung"),
         "proto":   ("PROTOTYP", "Testgelände  ·  Sandbox  ·  Keine Stabilitätspflicht"),
+        "jukebox": ("JUKEBOX",  "MP3-Player  ·  Moodboards  ·  Playlisten"),
+        "gallery": ("GALERIE",  "Bildbetrachter  ·  Alben  ·  Slideshow"),
+        "vorhof":      ("VORHOF",      "Außenperspektive  ·  Gebäude-Karte  ·  Wegweiser"),
+        "labor":       ("LABOR",       "Werkstatt  ·  Experimente  ·  Aktive Entwicklung"),
+        "sprengstoff": ("SPRENGSTOFF", "Hochrisiko  ·  Explosiv  ·  Keine Stabilitätspflicht"),
+        "raum1":       ("RAUM 1",      "Reserviert  ·  Ohne Zweckbestimmung"),
+        "raum2":       ("RAUM 2",      "Reserviert  ·  Ohne Zweckbestimmung"),
+        "raum8":       ("RAUM 8",      "Reserviert  ·  Ohne Zweckbestimmung"),
     }
 
     def __init__(self, width: int, height: int, settings: Optional['Settings'] = None):
@@ -50,6 +62,7 @@ class AppHeader:
         self.mode_font       = pygame.font.SysFont(FONT_FAMILY, 15, bold=True)
         self.stat_font       = pygame.font.SysFont(FONT_FAMILY, 14)
         self.title_deco_font = pygame.font.SysFont(FONT_SYMBOL[0], 22)
+        self.clock_deco_font = pygame.font.SysFont(FONT_SYMBOL[0], 13)
 
     def set_mode(self, mode: str) -> None:
         self._mode = mode
@@ -192,3 +205,27 @@ class AppHeader:
 
         desc_surf = self.stat_font.render(mode_desc, True, TEXT_LIGHT)
         blit_vcenter(desc_surf, fx + P, title_sep_y, info_sub_h)
+
+        # ── 4. Uhr: Tag · Datum · Uhrzeit (im 2. Sub-Streifen des Modus-Blocks) ──
+        now      = datetime.datetime.now()
+        day_name = _WEEKDAYS_DE[now.weekday()]
+        _y       = str(now.year + 10000)
+        year_str = _y[:2] + "." + _y[2:]          # 2026 → 12026 → "12.026"
+        date_str = now.strftime(f"%d-%m-{year_str}")
+        clock_str = f"{day_name}  ·  {date_str}  ·  {now.strftime('%H:%M:%S')}"
+        blink_on  = (_time.time() % 1.0) < 0.5
+
+        c_surf  = self.stat_font.render(clock_str, True, TEXT_LIGHT)
+        d_surf  = self.clock_deco_font.render("◆", True, TEXT_HIGHLIGHT)
+        gap     = 8
+        grp_w   = (d_surf.get_width() + gap) * 2 + c_surf.get_width()
+        grp_x   = fx + (fw - grp_w) // 2
+        sub2_y  = title_sep_y + info_sub_h
+        cy      = sub2_y + (info_sub_h - c_surf.get_height()) // 2
+        dy      = sub2_y + (info_sub_h - d_surf.get_height()) // 2
+
+        if blink_on:
+            surface.blit(d_surf, (grp_x, dy))
+        surface.blit(c_surf, (grp_x + d_surf.get_width() + gap, cy))
+        if blink_on:
+            surface.blit(d_surf, (grp_x + d_surf.get_width() + gap + c_surf.get_width() + gap, dy))

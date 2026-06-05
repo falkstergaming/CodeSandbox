@@ -31,6 +31,8 @@ from core.utils.global_constants import (
     SCREEN_HEIGHT,
     GOLD,
     GRAU,
+    BRONZE,
+    SILBER,
     TEXT_LIGHT,
     TEXT_HIGHLIGHT,
 )
@@ -156,9 +158,25 @@ class App:
         x_r = self.SCREEN_WIDTH - self.MARGIN_RIGHT - 48   # rechter Rand: 1207
 
         # --- LINKS: Buttons 0–4 (oben → unten) ---
-        # Button 0: Museum-Eingang – Schloss-Symbol, Gold
+        # Button 0: Lobby – Sanduhr-Symbol, Gold
         self.button_0 = HexButton(
             x=x_l, y=256, size=48,
+            color=GOLD["hightone"],
+            text="⏳",
+            callback=lambda: self.set_mode("sandbox"),
+            highlight_color=GOLD["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=18,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.button_0.y_c = -120
+
+        # Button 1: Museum – Schloss-Symbol, Gold (von Button 0 hierher verschoben)
+        self.button_1 = HexButton(
+            x=x_l, y=316, size=48,
             color=GOLD["hightone"],
             text="🔒",
             callback=lambda: self.set_mode("museum"),
@@ -170,11 +188,54 @@ class App:
             angle_offset=30,
             alpha=220,
         )
-        self.button_0.y_c = -120
-        self.button_1 = _make_btn(x_l, 316, "1",  -60)   # frei
-        self.button_2 = _make_btn(x_l, 376, "2",    0)   # frei
-        self.button_3 = _make_btn(x_l, 436, "3",   60)   # frei
-        self.button_4 = _make_btn(x_l, 496, "4",  120)   # frei
+        self.button_1.y_c = -60
+
+        # Button 2: Raum 2 – Silber
+        self.button_2 = HexButton(
+            x=x_l, y=376, size=48,
+            color=SILBER["hightone"],
+            text="?",
+            callback=lambda: self.set_mode("raum2"),
+            highlight_color=SILBER["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=24,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.button_2.y_c = 0
+        # Button 3: Galerie – Landschafts-Symbol, Bronze
+        self.button_3 = HexButton(
+            x=x_l, y=436, size=48,
+            color=BRONZE["hightone"],
+            text="⛰",
+            callback=lambda: self.set_mode("gallery"),
+            highlight_color=BRONZE["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=20,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.button_3.y_c = 60
+
+        # Button 4: Jukebox – Noten-Symbol, Gold
+        self.button_4 = HexButton(
+            x=x_l, y=496, size=48,
+            color=GOLD["hightone"],
+            text="♪",
+            callback=lambda: self.set_mode("jukebox"),
+            highlight_color=GOLD["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=22,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.button_4.y_c = 120
 
         # Speichere alle linken Buttons als Liste für einfache Iteration
         self._left_buttons = [
@@ -202,31 +263,88 @@ class App:
         self.settings_button.y_c = -120
         self.settings_button.x_r = x_r
 
-        # Button 6: Sandbox/Lobby – center_y=340
-        self.lobby_button = _make_btn(x_r, 316, "6", -60,
-                                     callback=lambda: self.set_mode("sandbox"))
-        # Button 7: Prototyp – center_y=400
-        self.match_status_button = _make_btn(x_r, 376, "7", 0,
-                                             callback=lambda: self.set_mode("proto"))
-        # Button 8 (ehem. S): Museum – center_y=460
-        self.simulator_button = _make_btn(x_r, 436, "8", 60,
-                                          callback=lambda: self.set_mode("museum"))
-        # Button 9 (ehem. D): Labor – center_y=520
-        self.debugger_button = _make_btn(x_r, 496, "9", 120,
-                                         callback=lambda: self.set_mode("lab"))
+        # Button 6: Labor – Reagenzglas-Symbol, Silber
+        self.lobby_button = HexButton(
+            x=x_r, y=316, size=48,
+            color=SILBER["hightone"],
+            text="⚗",
+            callback=lambda: self.set_mode("labor"),
+            highlight_color=SILBER["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=20,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.lobby_button.y_c = -60
+
+        # Button 7: Sprengstoff – Bomben-Symbol, Bronze
+        self.match_status_button = HexButton(
+            x=x_r, y=376, size=48,
+            color=BRONZE["hightone"],
+            text="💣",
+            callback=lambda: self.set_mode("sprengstoff"),
+            highlight_color=BRONZE["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=18,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.match_status_button.y_c = 0
+        # Button 8: Raum 8 – Bronze
+        self.simulator_button = HexButton(
+            x=x_r, y=436, size=48,
+            color=BRONZE["hightone"],
+            text="?",
+            callback=lambda: self.set_mode("raum8"),
+            highlight_color=BRONZE["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=24,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.simulator_button.y_c = 60
+        # Button 9 (unten rechts): Vorhof – Kompass-Symbol, Gold
+        self.debugger_button = HexButton(
+            x=x_r, y=496, size=48,
+            color=GOLD["hightone"],
+            text="🧭",
+            callback=lambda: self.set_mode("vorhof"),
+            highlight_color=GOLD["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=18,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.debugger_button.y_c = 120
 
         # Rechter-Rand-Merkmal für _reposition_ui
         for btn in (self.settings_button, self.lobby_button, self.match_status_button,
                     self.simulator_button, self.debugger_button):
             btn.x_r = x_r
 
-        self.lobby_button.is_selected = True   # Sandbox ist Start-Modus
+        self.button_0.is_selected = True   # Lobby ist Start-Modus
 
     def _init_modi(self):
         from modes.sandbox   import Sandbox
         from modes.museum    import Museum
         from modes.lab       import Lab
         from modes.prototype import Prototype
+        from modes.jukebox   import Jukebox
+        from modes.gallery   import Gallery
+        from modes.vorhof      import Vorhof
+        from modes.labor       import Labor as LaborNeu
+        from modes.sprengstoff import Sprengstoff
+        from modes.raum_1      import Raum1
+        from modes.raum_2      import Raum2
+        from modes.raum_8      import Raum8
 
         self.sandbox = Sandbox(
             screen=self.screen,
@@ -254,9 +372,59 @@ class App:
             screen_height=self.SCREEN_HEIGHT,
         )
 
+        self.jukebox = Jukebox(
+            screen=self.screen,
+            screen_width=self.SCREEN_WIDTH,
+            screen_height=self.SCREEN_HEIGHT,
+        )
+        self.jukebox.set_app_callbacks(self.set_mode)
+
+        self.gallery = Gallery(
+            screen=self.screen,
+            screen_width=self.SCREEN_WIDTH,
+            screen_height=self.SCREEN_HEIGHT,
+        )
+        self.gallery.set_app_callbacks(self.set_mode)
+
+        self.vorhof = Vorhof(
+            screen=self.screen,
+            screen_width=self.SCREEN_WIDTH,
+            screen_height=self.SCREEN_HEIGHT,
+        )
+        self.vorhof.set_app_callbacks(self.set_mode)
+
+        self.labor_neu = LaborNeu(
+            screen=self.screen,
+            screen_width=self.SCREEN_WIDTH,
+            screen_height=self.SCREEN_HEIGHT,
+        )
+        self.labor_neu.set_app_callbacks(self.set_mode)
+
+        self.sprengstoff = Sprengstoff(
+            screen=self.screen,
+            screen_width=self.SCREEN_WIDTH,
+            screen_height=self.SCREEN_HEIGHT,
+        )
+        self.sprengstoff.set_app_callbacks(self.set_mode)
+
+        self.raum1 = Raum1(screen=self.screen, screen_width=self.SCREEN_WIDTH, screen_height=self.SCREEN_HEIGHT)
+        self.raum1.set_app_callbacks(self.set_mode)
+        self.raum2 = Raum2(screen=self.screen, screen_width=self.SCREEN_WIDTH, screen_height=self.SCREEN_HEIGHT)
+        self.raum2.set_app_callbacks(self.set_mode)
+        self.raum8 = Raum8(screen=self.screen, screen_width=self.SCREEN_WIDTH, screen_height=self.SCREEN_HEIGHT)
+        self.raum8.set_app_callbacks(self.set_mode)
+
         self.museum.init()
         self.lab.init()
         self.proto.init()
+        self.jukebox.init()
+        self.gallery.init()
+        self.vorhof.init()
+        self.labor_neu.init()
+        self.sprengstoff.init()
+        self.raum1.init()
+        self.raum2.init()
+        self.raum8.init()
 
     # ------------------------------------------------------------------
     # Modus-Verwaltung
@@ -264,20 +432,28 @@ class App:
 
     def _update_mode_buttons(self):
         if hasattr(self, 'button_0'):
-            self.button_0.is_selected = (self.mode == "museum")
+            self.button_0.is_selected = (self.mode == "sandbox")
+        if hasattr(self, 'button_1'):
+            self.button_1.is_selected = (self.mode == "museum")
+        if hasattr(self, 'button_2'):
+            self.button_2.is_selected = (self.mode == "raum2")
+        if hasattr(self, 'button_3'):
+            self.button_3.is_selected = (self.mode == "gallery")
+        if hasattr(self, 'button_4'):
+            self.button_4.is_selected = (self.mode == "jukebox")
         if hasattr(self, 'lobby_button'):
-            self.lobby_button.is_selected = (self.mode == "sandbox")
+            self.lobby_button.is_selected = (self.mode == "labor")
         if hasattr(self, 'simulator_button'):
-            self.simulator_button.is_selected = (self.mode == "museum")
+            self.simulator_button.is_selected = (self.mode == "raum8")
         if hasattr(self, 'debugger_button'):
-            self.debugger_button.is_selected = (self.mode == "lab")
+            self.debugger_button.is_selected = (self.mode == "vorhof")
         if hasattr(self, 'match_status_button'):
-            self.match_status_button.is_selected = (self.mode == "proto")
+            self.match_status_button.is_selected = (self.mode == "sprengstoff")
         if hasattr(self, 'settings_button') and hasattr(self, 'settings_menu'):
             self.settings_button.is_selected = self.settings_menu.is_active
 
     def set_mode(self, new_mode: str):
-        valid_modes = ["sandbox", "museum", "lab", "proto"]
+        valid_modes = ["sandbox", "museum", "lab", "proto", "jukebox", "gallery", "vorhof", "labor", "sprengstoff", "raum1", "raum2", "raum8"]
         if new_mode not in valid_modes or new_mode == self.mode:
             return
 
@@ -289,6 +465,22 @@ class App:
 
         if new_mode == "museum" and hasattr(self, "museum"):
             self.museum.on_enter()
+        if new_mode == "jukebox" and hasattr(self, "jukebox"):
+            self.jukebox.on_enter()
+        if new_mode == "gallery" and hasattr(self, "gallery"):
+            self.gallery.on_enter()
+        if new_mode == "vorhof" and hasattr(self, "vorhof"):
+            self.vorhof.on_enter()
+        if new_mode == "labor" and hasattr(self, "labor_neu"):
+            self.labor_neu.on_enter()
+        if new_mode == "sprengstoff" and hasattr(self, "sprengstoff"):
+            self.sprengstoff.on_enter()
+        if new_mode == "raum1" and hasattr(self, "raum1"):
+            self.raum1.on_enter()
+        if new_mode == "raum2" and hasattr(self, "raum2"):
+            self.raum2.on_enter()
+        if new_mode == "raum8" and hasattr(self, "raum8"):
+            self.raum8.on_enter()
 
         if new_mode in ("museum", "lab", "proto") and old_mode == "sandbox":
             self.audio_manager.play_neutral()
@@ -317,6 +509,22 @@ class App:
                 self.lab.update(dt)
             elif self.mode == "proto":
                 self.proto.update(dt)
+            elif self.mode == "jukebox":
+                self.jukebox.update(dt)
+            elif self.mode == "gallery":
+                self.gallery.update(dt)
+            elif self.mode == "vorhof":
+                self.vorhof.update(dt)
+            elif self.mode == "labor":
+                self.labor_neu.update(dt)
+            elif self.mode == "sprengstoff":
+                self.sprengstoff.update(dt)
+            elif self.mode == "raum1":
+                self.raum1.update(dt)
+            elif self.mode == "raum2":
+                self.raum2.update(dt)
+            elif self.mode == "raum8":
+                self.raum8.update(dt)
             self._mode_errors.pop(self.mode, None)
         except Exception as e:
             self._mode_errors[self.mode] = e
@@ -379,6 +587,22 @@ class App:
                     self.lab.handle_event(event)
                 elif self.mode == "proto":
                     self.proto.handle_event(event)
+                elif self.mode == "jukebox":
+                    self.jukebox.handle_event(event)
+                elif self.mode == "gallery":
+                    self.gallery.handle_event(event)
+                elif self.mode == "vorhof":
+                    self.vorhof.handle_event(event)
+                elif self.mode == "labor":
+                    self.labor_neu.handle_event(event)
+                elif self.mode == "sprengstoff":
+                    self.sprengstoff.handle_event(event)
+                elif self.mode == "raum1":
+                    self.raum1.handle_event(event)
+                elif self.mode == "raum2":
+                    self.raum2.handle_event(event)
+                elif self.mode == "raum8":
+                    self.raum8.handle_event(event)
             except Exception as e:
                 self._mode_errors[self.mode] = e
 
@@ -432,6 +656,22 @@ class App:
                 self.lab.render_content()
             elif self.mode == "proto":
                 self.proto.render_content()
+            elif self.mode == "jukebox":
+                self.jukebox.render_content()
+            elif self.mode == "gallery":
+                self.gallery.render_content()
+            elif self.mode == "vorhof":
+                self.vorhof.render_content()
+            elif self.mode == "labor":
+                self.labor_neu.render_content()
+            elif self.mode == "sprengstoff":
+                self.sprengstoff.render_content()
+            elif self.mode == "raum1":
+                self.raum1.render_content()
+            elif self.mode == "raum2":
+                self.raum2.render_content()
+            elif self.mode == "raum8":
+                self.raum8.render_content()
             self._mode_errors.pop(self.mode, None)
         except Exception as e:
             self._mode_errors[self.mode] = e
