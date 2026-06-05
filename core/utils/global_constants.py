@@ -33,6 +33,12 @@ from core.utils.colors import (
     UI_BUTTON_HIGHLIGHT,
     UI_BUTTON_HIGHLIGHT_TEXT,
     HEX_COLORS,
+    # CodeSandbox Farbkonzept
+    GRAU,
+    SILBER,
+    GOLD,
+    BRONZE,
+    PALETTE,
 )
 
 # =============================================================================
@@ -56,6 +62,18 @@ FONT_DESCRIPTION = (FONT_FAMILY, 14)
 # =============================================================================
 HEX_SIZE    = {"width": 80, "height": 80}
 HEX_SPACING = 10
+
+# =============================================================================
+# CONSOLE SYMBOLE
+# =============================================================================
+CONSOLE_SYMBOLS = {
+    "info":      "ℹ",   # Hinweis / allgemeine Info
+    "warning":   "⚠",   # Warnung / nicht möglich
+    "success":   "✓",   # Bestätigung / Erfolg
+    "error":     "✗",   # Fehler
+    "highlight": "⚡",  # Hervorhebung / Ereignis
+    "phase":     "▶",   # Phasen- / Statusübergang
+}
 
 # =============================================================================
 # FACTIONS

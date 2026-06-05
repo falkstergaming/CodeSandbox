@@ -1,6 +1,7 @@
 """
 Alle Farbkonstanten für CodeSandbox.
 1:1 übernommen aus Sturm auf Grayskull.
+Ergänzt: CodeSandbox Farbkonzept (GRAU / SILBER / GOLD / BRONZE).
 """
 
 # =============================================================================
@@ -156,4 +157,54 @@ HEX_COLORS = {
     "preview_opponent": PERGAMENT["field"],
     "empty":            EMPTY_HEX_COLOR,
     "neutral":          PERGAMENT["field"],
+}
+
+# =============================================================================
+# CODESANDBOX FARBKONZEPT  (Quelle: Farbkonzept_CodeSandbox.PNG)
+# Dunkles Arbeitsumfeld – vier Farbfamilien, je 5 Tonstufen
+#
+#   overtone  — tiefste Stufe  (Schatten, tiefer Hintergrund)
+#   hightone  — dunkle Stufe  (dunkle Fläche, Kontur)
+#   midtone   — Hauptton      (primärer Akzent / Füllfläche)
+#   halftone  — helle Stufe   (Sekundärfläche, hover)
+#   lowtone   — hellste Stufe (Highlight, Text auf Dunkel, heller BG)
+# =============================================================================
+
+GRAU = {
+    "overtone": ( 31,  33,  41),   # #1F2129  tiefster Hintergrund
+    "hightone": ( 44,  50,  64),   # #2C3240  dunkle Fläche
+    "midtone":  ( 75,  83, 100),   # #4B5364  mittlerer Grauton
+    "halftone": (150, 162, 180),   # #96A2B4  heller Sekundärton
+    "lowtone":  (220, 225, 234),   # #DCE1EA  heller Hintergrund
+}
+
+SILBER = {
+    "overtone": ( 17,  46,  63),   # #112E3F  tiefster Petrol
+    "hightone": ( 34,  96, 112),   # #226070  dunkler Akzent
+    "midtone":  ( 54, 153, 168),   # #3699A8  Hauptakzent Petrol
+    "halftone": (146, 205, 214),   # #92CDD6  heller Petrol
+    "lowtone":  (224, 241, 244),   # #E0F1F4  sehr heller Petrol
+}
+
+GOLD = {
+    "overtone": ( 40,  28,   0),   # #281C00  tiefstes Gold
+    "hightone": ( 90,  61,   0),   # #5A3D00  dunkles Gold
+    "midtone":  (163, 120,   0),   # #A37800  Hauptgold
+    "halftone": (222, 192, 104),   # #DEC068  helles Gold
+    "lowtone":  (248, 240, 214),   # #F8F0D6  sehr helles Gold / Crème
+}
+
+BRONZE = {
+    "overtone": ( 40,  22,   0),   # #281600  tiefstes Bronze
+    "hightone": ( 92,  50,   0),   # #5C3200  dunkles Bronze
+    "midtone":  (158,  96,  32),   # #9E6020  Hauptbronze
+    "halftone": (212, 160, 104),   # #D4A068  helles Bronze
+    "lowtone":  (244, 226, 206),   # #F4E2CE  sehr helles Bronze / Crème
+}
+
+PALETTE = {
+    "grau":   GRAU,
+    "silber": SILBER,
+    "gold":   GOLD,
+    "bronze": BRONZE,
 }

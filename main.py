@@ -29,6 +29,10 @@ from core.utils.global_constants import (
     UI_BUTTON_HIGHLIGHT_TEXT,
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
+    GOLD,
+    GRAU,
+    TEXT_LIGHT,
+    TEXT_HIGHLIGHT,
 )
 from core.utils.settings import Settings
 from interfaces.renderer.pygame.screen import Screen
@@ -97,11 +101,28 @@ class App:
     def _init_central_ui(self):
         from interfaces.renderer.pygame.components.settings_menu import SettingsMenu
         from interfaces.renderer.pygame.components.button import HexButton
+        from interfaces.renderer.pygame.components.header import AppHeader
+        from interfaces.renderer.pygame.components.console import Console
 
-        # Settings-Menü (Overlay)
+        # Header (obere 12% des Bildschirms)
+        self.header = AppHeader(
+            width=self.SCREEN_WIDTH,
+            height=self.SCREEN_HEIGHT,
+            settings=self.settings,
+        )
+
+        # Console (unterer Bereich, persistent)
+        _cx = self.MARGIN_LEFT + 48 + 10   # nach den linken Buttons
+        _cw = self.SCREEN_WIDTH - _cx - 48 - 10 - self.MARGIN_RIGHT
+        _ch = 160
+        _cy = self.SCREEN_HEIGHT - _ch - 10
+        self.console = Console(x=_cx, y=_cy, width=_cw, height=_ch)
+        self.console.log("Code Sandbox gestartet.", symbol_type="success")
+
+        # Settings-Menü (Overlay – unter dem Header, rechtsbündig)
         self.settings_menu = SettingsMenu(
             x=self.SCREEN_WIDTH - 25 - 300,
-            y=53,
+            y=130,
             settings=self.settings
         )
 
@@ -134,8 +155,22 @@ class App:
         x_l = self.MARGIN_LEFT                              # linker Rand: 25
         x_r = self.SCREEN_WIDTH - self.MARGIN_RIGHT - 48   # rechter Rand: 1207
 
-        # --- LINKS: Buttons 0–4 (oben → unten, center_y: 280, 340, 400, 460, 520) ---
-        self.button_0 = _make_btn(x_l, 256, "0", -120)   # frei
+        # --- LINKS: Buttons 0–4 (oben → unten) ---
+        # Button 0: Museum-Eingang – Schloss-Symbol, Gold
+        self.button_0 = HexButton(
+            x=x_l, y=256, size=48,
+            color=GOLD["hightone"],
+            text="🔒",
+            callback=lambda: self.set_mode("museum"),
+            highlight_color=GOLD["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=18,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.button_0.y_c = -120
         self.button_1 = _make_btn(x_l, 316, "1",  -60)   # frei
         self.button_2 = _make_btn(x_l, 376, "2",    0)   # frei
         self.button_3 = _make_btn(x_l, 436, "3",   60)   # frei
@@ -150,15 +185,29 @@ class App:
         # --- RECHTS: Buttons 5–9 (oben → unten) ---
         # Aliase behalten Assault-kompatible Namen für _update_mode_buttons
 
-        # Button 5 (ehem. ⚙): Prototyp – center_y=280
-        self.settings_button = _make_btn(x_r, 256, "5", -120,
-                                         callback=lambda: self.set_mode("proto"))
-        # Button 6 (ehem. G): Sandbox – center_y=340
-        self.game_button = _make_btn(x_r, 316, "6", -60,
+        # Button 5: Settings-Toggle ⚙  (Gold)
+        self.settings_button = HexButton(
+            x=x_r, y=256, size=48,
+            color=GOLD["hightone"],
+            text="⚙",
+            callback=lambda: self.settings_menu.toggle(),
+            highlight_color=GOLD["midtone"],
+            highlight_text_color=GRAU["lowtone"],
+            text_color=GRAU["lowtone"],
+            font_size=22,
+            bold=True,
+            angle_offset=30,
+            alpha=220,
+        )
+        self.settings_button.y_c = -120
+        self.settings_button.x_r = x_r
+
+        # Button 6: Sandbox/Lobby – center_y=340
+        self.lobby_button = _make_btn(x_r, 316, "6", -60,
                                      callback=lambda: self.set_mode("sandbox"))
-        # Button 7 (ehem. ⏳): Settings-Toggle – center_y=400
+        # Button 7: Prototyp – center_y=400
         self.match_status_button = _make_btn(x_r, 376, "7", 0,
-                                             callback=lambda: self.settings_menu.toggle())
+                                             callback=lambda: self.set_mode("proto"))
         # Button 8 (ehem. S): Museum – center_y=460
         self.simulator_button = _make_btn(x_r, 436, "8", 60,
                                           callback=lambda: self.set_mode("museum"))
@@ -167,11 +216,11 @@ class App:
                                          callback=lambda: self.set_mode("lab"))
 
         # Rechter-Rand-Merkmal für _reposition_ui
-        for btn in (self.settings_button, self.game_button, self.match_status_button,
+        for btn in (self.settings_button, self.lobby_button, self.match_status_button,
                     self.simulator_button, self.debugger_button):
             btn.x_r = x_r
 
-        self.game_button.is_selected = True   # Sandbox ist Start-Modus
+        self.lobby_button.is_selected = True   # Sandbox ist Start-Modus
 
     def _init_modi(self):
         from modes.sandbox   import Sandbox
@@ -191,6 +240,7 @@ class App:
             screen_width=self.SCREEN_WIDTH,
             screen_height=self.SCREEN_HEIGHT,
         )
+        self.museum.set_app_callbacks(self.set_mode)
 
         self.lab = Lab(
             screen=self.screen,
@@ -213,14 +263,18 @@ class App:
     # ------------------------------------------------------------------
 
     def _update_mode_buttons(self):
-        if hasattr(self, 'game_button'):
-            self.game_button.is_selected = (self.mode == "sandbox")
+        if hasattr(self, 'button_0'):
+            self.button_0.is_selected = (self.mode == "museum")
+        if hasattr(self, 'lobby_button'):
+            self.lobby_button.is_selected = (self.mode == "sandbox")
         if hasattr(self, 'simulator_button'):
             self.simulator_button.is_selected = (self.mode == "museum")
         if hasattr(self, 'debugger_button'):
             self.debugger_button.is_selected = (self.mode == "lab")
-        if hasattr(self, 'settings_button'):
-            self.settings_button.is_selected = (self.mode == "proto")
+        if hasattr(self, 'match_status_button'):
+            self.match_status_button.is_selected = (self.mode == "proto")
+        if hasattr(self, 'settings_button') and hasattr(self, 'settings_menu'):
+            self.settings_button.is_selected = self.settings_menu.is_active
 
     def set_mode(self, new_mode: str):
         valid_modes = ["sandbox", "museum", "lab", "proto"]
@@ -230,6 +284,8 @@ class App:
         old_mode  = self.mode
         self.mode = new_mode
         self._update_mode_buttons()
+        if hasattr(self, 'header'):
+            self.header.set_mode(new_mode)
 
         if new_mode == "museum" and hasattr(self, "museum"):
             self.museum.on_enter()
@@ -296,17 +352,20 @@ class App:
             if self.settings_menu.handle_event(event):
                 continue
 
-            # Rechte Buttons (5-9): Modus-Wechsel und Settings-Toggle
+            # Rechte Buttons (5-9): Modus-Wechsel (6,8,9,7) + Settings-Toggle (5)
             _mode_btn_clicked = False
-            for btn_name in ('game_button', 'simulator_button', 'debugger_button', 'settings_button'):
+            for btn_name in ('lobby_button', 'simulator_button', 'debugger_button', 'match_status_button'):
                 btn = getattr(self, btn_name, None)
                 if btn and btn.handle_event(event):
                     _mode_btn_clicked = True
-            if hasattr(self, 'match_status_button'):
-                self.match_status_button.handle_event(event)
-            # Linke Buttons (0-4): noch ohne Callback, reagieren auf Hover
+            # Settings-Button togglet Menü (kein Modus-Wechsel)
+            if hasattr(self, 'settings_button'):
+                if self.settings_button.handle_event(event):
+                    self._update_mode_buttons()   # selected-state sofort aktualisieren
+            # Linke Buttons (0-4): Button 0 hat Callback → setzt _mode_btn_clicked
             for btn in getattr(self, '_left_buttons', []):
-                btn.handle_event(event)
+                if btn.handle_event(event) and btn.callback:
+                    _mode_btn_clicked = True
             if _mode_btn_clicked:
                 continue
 
@@ -331,7 +390,7 @@ class App:
         # Rechte Buttons (5-9): x folgt dem rechten Rand
         _right_buttons = (
             'match_status_button', 'settings_button',
-            'game_button', 'simulator_button', 'debugger_button',
+            'lobby_button', 'simulator_button', 'debugger_button',
         )
         for btn_name in _right_buttons:
             btn = getattr(self, btn_name, None)
@@ -350,6 +409,14 @@ class App:
             btn.center_y = btn.y + btn.size / 2
             btn.points   = btn._calculate_hex_points()
         self.settings_menu.x = self.SCREEN_WIDTH - 25 - 300
+        if hasattr(self, 'header'):
+            self.header.resize(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+        if hasattr(self, 'console'):
+            _cx = self.MARGIN_LEFT + 48 + 10
+            _cw = self.SCREEN_WIDTH - _cx - 48 - 10 - self.MARGIN_RIGHT
+            _ch = 160
+            _cy = self.SCREEN_HEIGHT - _ch - 10
+            self.console.resize(_cx, _cy, _cw, _ch)
 
     def render(self):
         # Hintergrund
@@ -380,7 +447,7 @@ class App:
         from interfaces.renderer.pygame.components.button import draw_raised_effects
         _app_buttons = [
             b for b in [
-                getattr(self, 'game_button',          None),
+                getattr(self, 'lobby_button',          None),
                 getattr(self, 'simulator_button',     None),
                 getattr(self, 'debugger_button',      None),
                 getattr(self, 'settings_button',      None),
@@ -392,8 +459,13 @@ class App:
         for btn in _app_buttons:
             btn.render(self.screen)
 
-        # Modus-Indikator (oben links)
-        self._render_mode_indicator()
+        # Header (obere 12%)
+        if hasattr(self, 'header'):
+            self.header.render(self.screen)
+
+        # Console (unterer Bereich)
+        if hasattr(self, 'console'):
+            self.console.render(self.screen)
 
         # Startup-Fade
         if self._fade_alpha > 0:
@@ -406,48 +478,56 @@ class App:
 
     def _render_diamond_chains(self):
         """
-        Zeichnet zwei vertikale Diamant-Ketten (je 5 Diamanten) am linken und
-        rechten Bildrand – flankierend zu den 10 Hex-Buttons.
-        Verbindungslinien zwischen den Diamanten erzeugen den Perlenketten-Effekt.
+        Zwei vertikale Dekor-Ketten durch die Button-Spalten.
+
+        Aufbau (von oben nach unten):
+          Band ─────────────────── geht von y=0 bis y=H (unendlich)
+          ◆ ◆ ◆ ◆ ◆               5 kleine Diamanten Richtung Header
+          [Hex-Button]  [Hex-Button]  [...]   ← 5 dicke "Diamanten" (die Buttons selbst)
+          ◆ ◆ ◆ ◆ ◆               5 kleine Diamanten Richtung Console
+          Band ─────────────────── (wird von Header + Console überdeckt)
         """
         font_d        = pygame.font.SysFont("Segoe UI Symbol", 12)
         color_diamond = (165, 118, 45)   # warmes Bernstein-Gold
-        color_line    = (100,  72, 25)   # gedämpftes Braun
+        color_dark    = ( 80,  55, 18)   # dunkler Bandrand
 
-        # x-Mitte des jeweiligen Randstreifens (MARGIN = 25 px)
-        x_left  = self.MARGIN_LEFT  // 2          # ≈ 12 px
-        x_right = self.SCREEN_WIDTH - self.MARGIN_RIGHT // 2  # ≈ 1268 px
+        btn_size = 48
+        # Band läuft durch Button-Mittelpunkte (Buttons zeichnen sich danach obendrüber)
+        x_left  = self.MARGIN_LEFT + btn_size // 2
+        x_right = self.SCREEN_WIDTH - self.MARGIN_RIGHT - btn_size // 2
 
-        # y-Mittelpunkte der 5 Buttons (center_y = Bildmitte + y_c)
-        mid = self.SCREEN_HEIGHT // 2
-        centers_y = [mid + y_c for y_c in (-120, -60, 0, 60, 120)]
+        mid         = self.SCREEN_HEIGHT // 2
+        btn_spacing = 60
+        centers_y   = [mid + y_c for y_c in (-120, -60, 0, 60, 120)]
+        top_anchor  = centers_y[0]    # oberster Button-Mittelpunkt
+        bot_anchor  = centers_y[-1]   # unterster Button-Mittelpunkt
+
+        # 5 kleine Diamanten oberhalb + unterhalb der Button-Gruppe
+        upper = [top_anchor - (i + 1) * btn_spacing for i in range(5)]
+        lower = [bot_anchor + (i + 1) * btn_spacing for i in range(5)]
 
         d_surf = font_d.render("◆", True, color_diamond)
         half_h = d_surf.get_height() // 2
 
         for cx in (x_left, x_right):
-            # Verbindungslinien zwischen je zwei aufeinanderfolgenden Diamanten
-            for i in range(len(centers_y) - 1):
-                y_top = centers_y[i]     + half_h + 3
-                y_bot = centers_y[i + 1] - half_h - 3
-                if y_bot > y_top:
-                    pygame.draw.line(self.screen, color_line, (cx, y_top), (cx, y_bot), 1)
-            # Diamanten selbst
-            for cy in centers_y:
+            # ── 1. Dekorband — von oben nach unten (wird von Header + Console überdeckt) ──
+            pygame.draw.line(self.screen, color_dark,    (cx - 1, 0), (cx - 1, self.SCREEN_HEIGHT), 1)
+            pygame.draw.line(self.screen, color_diamond, (cx,     0), (cx,     self.SCREEN_HEIGHT), 1)
+            pygame.draw.line(self.screen, color_dark,    (cx + 1, 0), (cx + 1, self.SCREEN_HEIGHT), 1)
+
+            # ── 2. Verbindungslinien zwischen kleinen Diamanten (auf dem Band) ──
+            small_all = list(reversed(upper)) + lower   # alle 10, sortiert nach y
+            for seq in (list(reversed(upper)), lower):  # erst oben, dann unten separat
+                for i in range(len(seq) - 1):
+                    y_a = seq[i]     + half_h + 2
+                    y_b = seq[i + 1] - half_h - 2
+                    if y_b > y_a:
+                        pygame.draw.line(self.screen, color_diamond, (cx, y_a), (cx, y_b), 1)
+
+            # ── 3. Kleine Diamanten oben + unten ──
+            for cy in upper + lower:
                 rect = d_surf.get_rect(center=(cx, cy))
                 self.screen.blit(d_surf, rect)
-
-    def _render_mode_indicator(self):
-        from core.utils.global_constants import FONT_FAMILY
-        font = pygame.font.SysFont(FONT_FAMILY, 20)
-        mode_names = {
-            "sandbox": "SANDBOX",
-            "museum":  "MUSEUM",
-            "lab":     "LABOR",
-            "proto":   "PROTOTYP",
-        }
-        text_surface = font.render(mode_names.get(self.mode, self.mode.upper()), True, COLORS["text"])
-        self.screen.blit(text_surface, (10, 10))
 
     def _render_mode_error(self, mode: str, error: Exception):
         """Zeigt Fehler-Overlay für einen Modus an – App und andere Modi laufen weiter."""
