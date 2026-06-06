@@ -1,6 +1,6 @@
 """
 Text-Konsole für CodeSandbox.
-Zeigt Log-Meldungen an. Visuelles Design 1:1 aus Assault on Grayskull.
+Zeigt Log-Meldungen an. Visuelles Design übernommen aus Assault.
 """
 
 import pygame

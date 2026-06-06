@@ -1,7 +1,7 @@
 """
 Settings-Modul für CodeSandbox.
 Verwaltet Spracheinstellungen und Audio-Einstellungen.
-1:1 übernommen aus Sturm auf Grayskull.
+Übernommen aus Assault.
 """
 
 import configparser
@@ -12,7 +12,8 @@ DEFAULT_SETTINGS = {
     "language": "en",
     "music_volume": 100,
     "effect_volume": 100,
-    "music_enabled": True
+    "music_enabled": True,
+    "jukebox_folder": "",
 }
 
 
@@ -40,6 +41,7 @@ class Settings:
             "effect_volume": str(self._settings["effect_volume"]),
             "music_enabled": str(self._settings["music_enabled"])
         }
+        config["Jukebox"] = {"folder": self._settings["jukebox_folder"]}
         if os.path.exists(self.settings_file):
             try:
                 config.read(self.settings_file, encoding='utf-8')
@@ -52,6 +54,8 @@ class Settings:
                         self._settings["effect_volume"] = int(config["Audio"]["effect_volume"])
                     if "music_enabled" in config["Audio"]:
                         self._settings["music_enabled"] = config["Audio"].getboolean("music_enabled")
+                if "Jukebox" in config and "folder" in config["Jukebox"]:
+                    self._settings["jukebox_folder"] = config["Jukebox"]["folder"]
             except Exception as e:
                 print(f"[WARNING] Fehler beim Laden der Settings: {e}")
         else:
@@ -65,6 +69,7 @@ class Settings:
             "effect_volume": str(self._settings["effect_volume"]),
             "music_enabled": str(self._settings["music_enabled"])
         }
+        config["Jukebox"] = {"folder": self._settings["jukebox_folder"]}
         try:
             with open(self.settings_file, 'w', encoding='utf-8') as f:
                 config.write(f)
@@ -109,6 +114,15 @@ class Settings:
     @music_enabled.setter
     def music_enabled(self, value: bool) -> None:
         self._settings["music_enabled"] = value
+        self._save()
+
+    @property
+    def jukebox_folder(self) -> str:
+        return self._settings["jukebox_folder"]
+
+    @jukebox_folder.setter
+    def jukebox_folder(self, value: str) -> None:
+        self._settings["jukebox_folder"] = value or ""
         self._save()
 
     def get_all(self) -> Dict[str, Any]:

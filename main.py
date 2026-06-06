@@ -1,17 +1,28 @@
 """
 Einstiegspunkt für Code Sandbox.
-Hauptanwendung mit Modus-Wechsel zwischen Sandbox, Museum, Labor und Prototyp.
-Basiert auf Sturm auf Grayskull – game-spezifische Logik entfernt.
+Hauptanwendung mit Modus-Wechsel zwischen den 12 Räumen.
+Basiert auf Assault – App-Struktur übernommen und umgebaut.
 
-10 Hex-Buttons: 5 links (0-4) + 5 rechts (5-9), vertikal um Bildmitte zentriert.
-  Rechts   5 y=256  → Prototyp-Modus
-           6 y=316  → Sandbox-Modus (Start)
-           7 y=376  → Settings-Menü toggle
-           8 y=436  → Museum-Modus
-           9 y=496  → Labor-Modus
-  Links    0-4      → zukünftige Bereiche (Stubs)
+10 Hex-Buttons: 5 links (0–4) + 5 rechts (5–9), vertikal um Bildmitte zentriert.
 
-Tastenkürzel: G=Sandbox  S=Museum  D=Labor  P=Prototyp  ESC=Beenden
+  Linke Spalte (Buttons 0–4):
+    0  ⏳  Gold    → Lobby / Sandbox  (Startpunkt)
+    1  🔒  Gold    → Museum
+    2  ?   Silber  → Raum 2  (reserviert)
+    3  ⛰   Bronze  → Galerie
+    4  ♪   Gold    → Jukebox
+
+  Rechte Spalte (Buttons 5–9):
+    5  ⚙   Gold    → Settings-Menü  (Toggle – kein Modus-Wechsel)
+    6  ⚗   Silber  → Labor
+    7  💣  Bronze  → Sprengstoff
+    8  ?   Bronze  → Raum 8  (reserviert)
+    9  🧭  Gold    → Vorhof
+
+Jeder Modus ist ein eigenständiges Modul unter modes/ und über seinen Button
+sowie per Tastenkürzel erreichbar.
+
+Tastenkürzel: G=Lobby  S=Museum  D=Labor  P=Prototyp  ESC=Beenden
 """
 import pygame
 from pygame.locals import *
@@ -49,8 +60,9 @@ class App:
     - Single Pygame-Instanz
     - Screen-Klasse für Hintergrundbild-Management
     - Modus-Wechsel ohne Neu-Initialisierung
-    - 5 Hex-Buttons am rechten Rand (identisch mit Sturm auf Grayskull)
-    - 4 Modi: sandbox, museum, lab, proto
+    - 10 Hex-Buttons: 5 links (0–4) + 5 rechts (5–9)
+    - 12 Modi: sandbox, museum, lab, proto, jukebox, gallery,
+               vorhof, labor, sprengstoff, raum1, raum2, raum8
     """
 
     def __init__(self):
@@ -244,7 +256,6 @@ class App:
         ]
 
         # --- RECHTS: Buttons 5–9 (oben → unten) ---
-        # Aliase behalten Assault-kompatible Namen für _update_mode_buttons
 
         # Button 5: Settings-Toggle ⚙  (Gold)
         self.settings_button = HexButton(
@@ -264,7 +275,7 @@ class App:
         self.settings_button.x_r = x_r
 
         # Button 6: Labor – Reagenzglas-Symbol, Silber
-        self.lobby_button = HexButton(
+        self.labor_button = HexButton(
             x=x_r, y=316, size=48,
             color=SILBER["hightone"],
             text="⚗",
@@ -277,10 +288,10 @@ class App:
             angle_offset=30,
             alpha=220,
         )
-        self.lobby_button.y_c = -60
+        self.labor_button.y_c = -60
 
         # Button 7: Sprengstoff – Bomben-Symbol, Bronze
-        self.match_status_button = HexButton(
+        self.sprengstoff_button = HexButton(
             x=x_r, y=376, size=48,
             color=BRONZE["hightone"],
             text="💣",
@@ -293,9 +304,9 @@ class App:
             angle_offset=30,
             alpha=220,
         )
-        self.match_status_button.y_c = 0
+        self.sprengstoff_button.y_c = 0
         # Button 8: Raum 8 – Bronze
-        self.simulator_button = HexButton(
+        self.raum8_button = HexButton(
             x=x_r, y=436, size=48,
             color=BRONZE["hightone"],
             text="?",
@@ -308,9 +319,9 @@ class App:
             angle_offset=30,
             alpha=220,
         )
-        self.simulator_button.y_c = 60
+        self.raum8_button.y_c = 60
         # Button 9 (unten rechts): Vorhof – Kompass-Symbol, Gold
-        self.debugger_button = HexButton(
+        self.vorhof_button = HexButton(
             x=x_r, y=496, size=48,
             color=GOLD["hightone"],
             text="🧭",
@@ -323,11 +334,11 @@ class App:
             angle_offset=30,
             alpha=220,
         )
-        self.debugger_button.y_c = 120
+        self.vorhof_button.y_c = 120
 
         # Rechter-Rand-Merkmal für _reposition_ui
-        for btn in (self.settings_button, self.lobby_button, self.match_status_button,
-                    self.simulator_button, self.debugger_button):
+        for btn in (self.settings_button, self.labor_button, self.sprengstoff_button,
+                    self.raum8_button, self.vorhof_button):
             btn.x_r = x_r
 
         self.button_0.is_selected = True   # Lobby ist Start-Modus
@@ -376,8 +387,9 @@ class App:
             screen=self.screen,
             screen_width=self.SCREEN_WIDTH,
             screen_height=self.SCREEN_HEIGHT,
+            settings=self.settings,
         )
-        self.jukebox.set_app_callbacks(self.set_mode)
+        self.jukebox.set_app_callbacks(self.set_mode, self.audio_manager)
 
         self.gallery = Gallery(
             screen=self.screen,
@@ -441,14 +453,14 @@ class App:
             self.button_3.is_selected = (self.mode == "gallery")
         if hasattr(self, 'button_4'):
             self.button_4.is_selected = (self.mode == "jukebox")
-        if hasattr(self, 'lobby_button'):
-            self.lobby_button.is_selected = (self.mode == "labor")
-        if hasattr(self, 'simulator_button'):
-            self.simulator_button.is_selected = (self.mode == "raum8")
-        if hasattr(self, 'debugger_button'):
-            self.debugger_button.is_selected = (self.mode == "vorhof")
-        if hasattr(self, 'match_status_button'):
-            self.match_status_button.is_selected = (self.mode == "sprengstoff")
+        if hasattr(self, 'labor_button'):
+            self.labor_button.is_selected = (self.mode == "labor")
+        if hasattr(self, 'raum8_button'):
+            self.raum8_button.is_selected = (self.mode == "raum8")
+        if hasattr(self, 'vorhof_button'):
+            self.vorhof_button.is_selected = (self.mode == "vorhof")
+        if hasattr(self, 'sprengstoff_button'):
+            self.sprengstoff_button.is_selected = (self.mode == "sprengstoff")
         if hasattr(self, 'settings_button') and hasattr(self, 'settings_menu'):
             self.settings_button.is_selected = self.settings_menu.is_active
 
@@ -462,6 +474,10 @@ class App:
         self._update_mode_buttons()
         if hasattr(self, 'header'):
             self.header.set_mode(new_mode)
+
+        # Jukebox verlassen: Musik stoppen, AudioManager kann wieder übernehmen
+        if old_mode == "jukebox" and new_mode != "jukebox" and hasattr(self, "jukebox"):
+            self.jukebox.on_leave()
 
         if new_mode == "museum" and hasattr(self, "museum"):
             self.museum.on_enter()
@@ -562,7 +578,7 @@ class App:
 
             # Rechte Buttons (5-9): Modus-Wechsel (6,8,9,7) + Settings-Toggle (5)
             _mode_btn_clicked = False
-            for btn_name in ('lobby_button', 'simulator_button', 'debugger_button', 'match_status_button'):
+            for btn_name in ('labor_button', 'raum8_button', 'vorhof_button', 'sprengstoff_button'):
                 btn = getattr(self, btn_name, None)
                 if btn and btn.handle_event(event):
                     _mode_btn_clicked = True
@@ -613,8 +629,8 @@ class App:
         self.MARGIN_RIGHT = 25
         # Rechte Buttons (5-9): x folgt dem rechten Rand
         _right_buttons = (
-            'match_status_button', 'settings_button',
-            'lobby_button', 'simulator_button', 'debugger_button',
+            'sprengstoff_button', 'settings_button',
+            'labor_button', 'raum8_button', 'vorhof_button',
         )
         for btn_name in _right_buttons:
             btn = getattr(self, btn_name, None)
@@ -687,11 +703,11 @@ class App:
         from interfaces.renderer.pygame.components.button import draw_raised_effects
         _app_buttons = [
             b for b in [
-                getattr(self, 'lobby_button',          None),
-                getattr(self, 'simulator_button',     None),
-                getattr(self, 'debugger_button',      None),
+                getattr(self, 'labor_button',          None),
+                getattr(self, 'raum8_button',     None),
+                getattr(self, 'vorhof_button',      None),
                 getattr(self, 'settings_button',      None),
-                getattr(self, 'match_status_button',  None),
+                getattr(self, 'sprengstoff_button',  None),
                 *getattr(self, '_left_buttons', []),
             ] if b is not None
         ]
@@ -786,7 +802,7 @@ class App:
         self.screen.blit(msg, (30, 125))
 
         hint = font_small.render(
-            "Fehler beheben und Modus wechseln  (G / S / D / P)  –  andere Modi bleiben aktiv.",
+            "Fehler beheben und Modus wechseln  (Buttons 0–9  ·  G / S / D / P)  –  andere Modi bleiben aktiv.",
             True, (180, 160, 140)
         )
         self.screen.blit(hint, (30, 148))

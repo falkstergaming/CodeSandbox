@@ -1,0 +1,14 @@
+{
+  "sliders": {
+    "tempo": 50,
+    "energy": 50,
+    "mood": 50,
+    "density": 50,
+    "roughness": 50
+  },
+  "toggles": {
+    "instrumental": null,
+    "loop_ready": null,
+    "beat_driven": null
+  }
+}

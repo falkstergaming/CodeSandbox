@@ -1,6 +1,6 @@
 """
 Globale Konstanten für CodeSandbox.
-Basiert auf Sturm auf Grayskull – game-spezifische Konstanten entfernt.
+Basiert auf Assault – game-spezifische Konstanten entfernt.
 """
 
 import os

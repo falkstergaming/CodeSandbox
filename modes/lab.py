@@ -1,24 +1,24 @@
 """
-Labor-Modus – Werkstatt / Entwicklungsbereich.
+Lab-Modus – Entwicklungsbereich (D-Taste).
+Wird gerade aufgebaut.
+
+Farbkonzept: GRAU Hintergrund · SILBER/Petrol Akzent · GOLD Highlight (sparsam)
 """
 
 import pygame
-from core.utils.global_constants import (
-    FONT_FAMILY, TEXT_LIGHT, TEXT_HIGHLIGHT, LEDER,
-    SCREEN_WIDTH, SCREEN_HEIGHT,
-)
-from interfaces.renderer.pygame.components.button import HexButton, draw_raised_effects
+from core.utils.global_constants import SILBER
+from interfaces.renderer.pygame.components.room_panel import draw_room_panel
+
+_ACCENT = SILBER["midtone"]
 
 
 class Lab:
-    """Werkstatt-Modus – Coming Soon."""
+    """Lab-Raum – Entwicklungsbereich (D-Taste)."""
 
     def __init__(self, screen, screen_width: int, screen_height: int, **kwargs):
-        self.screen = screen
-        self.screen_width = screen_width
+        self.screen        = screen
+        self.screen_width  = screen_width
         self.screen_height = screen_height
-        self._font_title = pygame.font.SysFont(FONT_FAMILY, 36, bold=True)
-        self._font_body  = pygame.font.SysFont(FONT_FAMILY, 20)
 
     def handle_event(self, event: pygame.event.Event):
         pass
@@ -27,17 +27,12 @@ class Lab:
         pass
 
     def render_content(self):
-        w, h = self.screen_width, self.screen_height
-
-        pygame.draw.rect(self.screen, (22, 16, 10), (0, 0, w, 78))
-        pygame.draw.line(self.screen, (80, 58, 36), (0, 78), (w, 78), 1)
-
-        title = self._font_title.render("LABOR", True, TEXT_HIGHLIGHT)
-        self.screen.blit(title, (30, 20))
-
-        msg = self._font_body.render("Werkstatt — kommt bald.", True, TEXT_LIGHT)
-        msg_rect = msg.get_rect(center=(w // 2, h // 2))
-        self.screen.blit(msg, msg_rect)
+        draw_room_panel(
+            self.screen, self.screen_width, self.screen_height,
+            title="⚗  LAB",
+            subtitle="Entwicklungsbereich  ·  D-Taste",
+            accent_color=_ACCENT,
+        )
 
     def init(self):
         pass

@@ -1,6 +1,6 @@
 """
 Alle Farbkonstanten für CodeSandbox.
-1:1 übernommen aus Sturm auf Grayskull.
+Übernommen und erweitert aus Assault.
 Ergänzt: CodeSandbox Farbkonzept (GRAU / SILBER / GOLD / BRONZE).
 """
 
@@ -14,7 +14,7 @@ TEXT_DARK = (59, 46, 30)
 TEXT_DARK_SECONDARY = (88, 69, 45)
 
 # =============================================================================
-# NEUTRALE FARBEN (Header, Textkonsole, 60er Hexfelder rechts am Rand)
+# NEUTRALE FARBEN (Pergament, Leder – Basis-Texturen aus Assault)
 # =============================================================================
 
 PERGAMENT = {

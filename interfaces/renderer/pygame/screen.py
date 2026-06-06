@@ -1,6 +1,6 @@
 """
 Screen - Hintergrundbild und Fensterverwaltung.
-Basiert auf Sturm auf Grayskull (1:1, Titel angepasst).
+Basiert auf Assault (Titel angepasst).
 """
 
 import pygame

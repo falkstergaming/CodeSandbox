@@ -1,11 +1,11 @@
 """
 AppHeader - Kopfzeile für CodeSandbox.
-Visuelles Design 1:1 aus Assault on Grayskull (GameStatusDisplay).
+Visuelles Design übernommen aus Assault (GameStatusDisplay).
 
 Layout (obere 12% des Bildschirms):
   [MARGIN] Info-Block: Titel "CODE SANDBOX" [GAP] Modus-Block: aktiver Modus [MARGIN]
 
-Identische Dekorationssprache:
+Dekorationssprache:
   - Semi-transparenter Hintergrund
   - Weißer Außenrahmen + Gold-Innenrahmen (3px Abstand)
   - L-förmige Ecken-Akzente mit kleinem Diamant

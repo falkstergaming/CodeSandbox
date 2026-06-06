@@ -1,6 +1,6 @@
 """
 Zentrale Übersetzungen für CodeSandbox.
-Basiert auf Sturm auf Grayskull – angepasst für CodeSandbox.
+Basiert auf Assault – angepasst für CodeSandbox.
 """
 
 from typing import Dict
@@ -9,7 +9,6 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     "en": {
         # Titel
         "app_title":      "Code Sandbox",
-        "game_title":     "Code Sandbox",
         "stats_title":    "Prototype",
 
         # Modi
@@ -38,7 +37,6 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     "de": {
         # Titel
         "app_title":      "Sandkasten",
-        "game_title":     "Sandkasten",
         "stats_title":    "Prototyp",
 
         # Modi

@@ -1,6 +1,6 @@
 """
 AudioManager - Faction-Soundscapes mit 3-Sekunden-Überblende und Titelmusik.
-1:1 übernommen aus Sturm auf Grayskull.
+Übernommen aus Assault.
 
 Übergänge:
 - Faction gewählt (keine Musik aktiv): 3 s Wartezeit, dann 1.5 s Fade-In

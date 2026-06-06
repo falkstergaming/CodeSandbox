@@ -1,17 +1,17 @@
 """
-Button-Klasse für hexagonale Buttons.
-1:1 übernommen aus Sturm auf Grayskull.
+Hexagonale Button-Klasse für CodeSandbox.
+Übernommen und angepasst aus Assault.
 
-- Board-Hexfelder: Groß (size=80) für das Spielfeld.
-- Action-Button: Mittel (size=60), rechts am Rand, mittig (für Modus-Wechsel).
-- Settings-Button: Mittel (size=60), oben rechts im Eck.
-- BoardButton: Vorbereitung für Hexfelder des Spielfelds (interaktiv).
+Größen:
+  size=80  – Exponat-Hexagone (Museum, Galerie)
+  size=60  – Nav-Hexagone innerhalb von Räumen
+  size=48  – Rand-Buttons (die 10 Navigations-Buttons in main.py)
 
-FARBKONZEPT:
-- normal: Primary-Farbe
-- highlighted: Highlight-Farbe (Mouseover)
-- selected: Selected-Farbe (ausgewählt)
-- disabled: Disabled-Farbe (deaktiviert)
+Zustände:
+  normal      – Primary-Farbe
+  highlighted – Highlight-Farbe (Mouseover)
+  selected    – Selected-Farbe (aktiver Modus / ausgewählt)
+  disabled    – Disabled-Farbe (deaktiviert)
 """
 
 from math import cos, sin, pi
@@ -88,7 +88,7 @@ def draw_raised_effects(
 class HexButton:
     """
     Basis-Klasse für ALLE hexagonalen Buttons.
-    1:1 übernommen aus Sturm auf Grayskull.
+    Übernommen und angepasst aus Assault.
 
     - Präzise Kollisionserkennung (Point-in-Polygon).
     - Highlighting bei Mausüberfahrt.
